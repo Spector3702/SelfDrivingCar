@@ -74,8 +74,7 @@ class Car:
             # 取得路底的index
             i = road.bottomPointIndex
 
-            # 若sensors碰到(超越)牆壁，更新距離
-            while v[i].y > self.y - SENSOR_DISTANCE:                                        # 若sensor在路的底部以下
+            while v[i].y > self.y - SENSOR_DISTANCE:                                        # 若路的邊線(bottomPointIndex)在畫面中
                 next_index = getPoint(i+1, NUM_POINTS*road.num_ctrl_points)                 # next_index = (i+1) % (15*num_ctrl_points)
                 getDistance(world, self, sensors, sensorsEquations, v[i], v[next_index])    # 根據 (v[i], v[next_index]) 兩點更新sensors[8]的距離
                 i = next_index
@@ -181,23 +180,23 @@ def getSegmentEquation(p, q):
 
 # (谷哥翻譯) 給定段 (m,q) 計算距離並將其放入相應的傳感器中
 def getDistance(world, car, sensors, sensorsEquations, p, q):     
-    (a2,b2,c2) = getSegmentEquation(p, q)
+    (a2,b2,c2) = getSegmentEquation(p, q)   # 路邊線切線的係數
 
     for i,(a1,b1,c1) in enumerate(sensorsEquations): # sensorsEquations = [(a0,b0,c0), (a1,b1,c1), (a2,b2,c2), (a3,b3,c3)]
-        # get intersection between sensor and segment
-        if a1!=a2 or b1!=b2:
-            d = b1*a2 - a1*b2
+        # get intersection between sensor(a1 + b1 + c1 = 0) and (切線)segment(a2x + b2y + c2 = 0)
+        if a1!=a2 or b1!=b2:    # 如果不是平行
+            d = b1*a2 - a1*b2   # 行列式
             if d == 0:
                 continue
-            y = (a1*c2 - c1*a2)/d
-            x = (c1*b2 - b1*c2)/d
-            if (y-p.y)*(y-q.y) > 0 or (x-p.x)*(x-q.x) > 0:        # (谷哥翻譯) 如果交集不適合 a 和 b，則轉到下一次迭代
-                continue
-        else:       # (谷哥翻譯) 重合線
-            (x, y) = (abs(p.x-q.x), abs(p.y-q.y))
+            y = (a1*c2 - c1*a2)/d                              # 行列式解y
+            x = (c1*b2 - b1*c2)/d                              # 行列式解x
+            if (y-p.y)*(y-q.y) > 0 or (x-p.x)*(x-q.x) > 0:     # 若在 p,q 兩點之外
+                continue                                       # 則進下個迴圈 
+        else:                                                  # 如果平行
+            (x, y) = (abs(p.x-q.x), abs(p.y-q.y))              # 卡
 
         # get distance
-        dist = ((car.x - x)**2 + (car.y - y)**2)**0.5        # 畢氏定理
+        dist = ((car.x - x)**2 + (car.y - y)**2)**0.5        # 畢氏定理(車到交點的距離)
 
         # (谷哥翻譯) 以正確的方向插入傳感器
         omega = car.rot + 45*i                                          # 轉向 + 0/45/90/135

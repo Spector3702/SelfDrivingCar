@@ -15,7 +15,7 @@ OUTPUT_NEURONS = 4
 
 #=================== Car Specs ==================================
 
-CAR_DBG = False
+CAR_DBG = True
 FRICTION  = -0.1
 MAX_VEL = 10
 MAX_VEL_REDUCTION = 1              #at the start reduce maximum speed
