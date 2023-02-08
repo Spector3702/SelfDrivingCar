@@ -56,16 +56,16 @@ class Road:
         prev = self.centerPoints[prev_index]
         angle = atan2(center.x-prev.x, prev.y-center.y)
 
-        x = ROAD_WIDTH/2 * cos(angle) # 畢氏定理
-        y = ROAD_WIDTH/2 * sin(angle) # 畢氏定理
+        x = ROAD_WIDTH/2 * cos(angle) # 三角函數算實際距離
+        y = ROAD_WIDTH/2 * sin(angle) # 三角函數算實際距離
         self.pointsLeft[i].x = center.x - x  # 路徑左側邊界座標
         self.pointsLeft[i].y = center.y - y if not center.y - y >= self.pointsLeft[prev_index].y else self.pointsLeft[prev_index].y
         self.pointsRight[i].x = center.x + x # 路徑右側邊界座標
         self.pointsRight[i].y = center.y + y if not center.y + y >= self.pointsRight[prev_index].y else self.pointsRight[prev_index].y
 
     def createSegment(self, index):
-        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]
-        p2 = self.ctrl_points[getPoint(index+1, self.num_ctrl_points)]
+        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]    # 猜測為準備要生成的point1
+        p2 = self.ctrl_points[getPoint(index+1, self.num_ctrl_points)]  # 猜測為準備要生成的point2
 
         #define p2
         seed()
@@ -79,9 +79,11 @@ class Road:
         #get cubic spline of the center line of the road
         ny = np.array([p2.y, p1.y]) #反轉是因為 scify 想要增加 x（在本例中是 y）
         nx = np.array([p2.x, p1.x])
-        cs = interpolate.CubicSpline(ny, nx, axis=0, bc_type=((1,p2.angle),(1,p1.angle)))
-        res = cs(y_tmp)
+        cs = interpolate.CubicSpline(ny, nx, axis=0, bc_type=((1,p2.angle),(1,p1.angle))) 
+        # cubic spline 用來畫出光滑形狀的工具 
 
+        res = cs(y_tmp)
+        
         #create the actual borders
         for i in range(NUM_POINTS):
             self.centerPoints[self.next_point].x = res[NUM_POINTS-i-1]
@@ -99,26 +101,29 @@ class Road:
 
 
     def draw(self, world):
-        #draw control_points
-        if(ROAD_DBG):
+        #draw control_points, 邊界 = 點(藍色)
+        if(ROAD_DBG): 
+
             #for p in self.ctrl_points:     #EEEEEEEEEEEEEEEEE
                 #py.draw.circle(win, BLUE, (int(p.x), int(p.y)), 4)
+            # 上面兩行是他原本的 應該只是範例
+
             for i in range(len(self.pointsLeft)):
                 py.draw.circle(world.win, BLUE, world.getScreenCoords(self.pointsLeft[i].x, self.pointsLeft[i].y), 2)
                 py.draw.circle(world.win, BLUE, world.getScreenCoords(self.pointsRight[i].x, self.pointsRight[i].y), 2)
                 #py.draw.lines(win, BLACK, False, [(self.pointsLeft[i].x, self.pointsLeft[i].y), (self.pointsRight[i].x, self.pointsRight[i].y)], 1)
         else:
-            #draw borders
+            #draw borders, 邊界 = 線條 
             for i in range(len(self.pointsLeft)):
                 next_index = getPoint(i+1, NUM_POINTS*self.num_ctrl_points)
 
-                p = self.pointsLeft[i]
-                f = self.pointsLeft[next_index]
+                p = self.pointsLeft[i]           # p = previous
+                f = self.pointsLeft[next_index]  # f = future
                 if p.y >= f.y:
                     py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y), world.getScreenCoords(f.x, f.y), 4)
                     # 畫左側道路邊界, 顏色 = 白, 寬度 = 4
-                p = self.pointsRight[i]
-                f = self.pointsRight[next_index]
+                p = self.pointsRight[i]          # p = previous
+                f = self.pointsRight[next_index] # f = future
                 if p.y >= f.y:
                     py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y),world.getScreenCoords(f.x, f.y), 4)
                     # 畫右側道路邊界, 顏色 = 白, 寬度 = 4
@@ -127,4 +132,11 @@ def getPoint(i, cap):
     return (i+cap)%cap
 
 
-# 持續註解中
+
+
+
+
+
+
+
+    #持續更新中
