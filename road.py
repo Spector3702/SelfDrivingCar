@@ -3,12 +3,17 @@ import pygame as py
 import numpy as np
 from scipy import interpolate
 from math import *
-from vect2d import *
+from vect2d import * 
 from random import random, seed
 
 class Road:
     def __init__(self, world):
-        self.num_ctrl_points = (int)((world.win_height+SAFE_SPACE)/SPACING)+2
+        self.num_ctrl_points = (int)((world.win_height+SAFE_SPACE)/SPACING)+2 
+        # SPACING = 200 
+        # SAFE_SPACE = SPACING + 50 = 250
+        # world.win_height = WIN_HEIGHT = 750
+        # => ((750+250)/200)+2 = 7 
+        # self.num_ctrl_points = 7 ?
 
         self.last_ctrl_point = 0
         self.ctrl_points = []
@@ -17,40 +22,45 @@ class Road:
         self.pointsRight = []
 
         for i in range(self.num_ctrl_points):
-             self.ctrl_points.append(vect2d())
+             self.ctrl_points.append(vect2d()) # 新增向上的向量
 
-        for i in range(NUM_POINTS*self.num_ctrl_points):        #riempi i vettori pointsLeft e pointsRight
-            self.pointsLeft.append(vect2d(1000,1000))
-            self.pointsRight.append(vect2d(1000,1000))
-            self.centerPoints.append(vect2d(1000,1000))
+        for i in range(NUM_POINTS*self.num_ctrl_points): 
+            # 填充 pointsLeft 和 pointsRight 向量
+            # NUM_POINTS  = 15                
+            # number of points for each segment
+            # NUM_POINTS*self.num_ctrl_points = 15*7 = 105
 
-        self.ctrl_points[0].co(0, SPACING)              #inizializza i primi due control_point in modo che siano dritti
-        self.ctrl_points[1].co(0, 0)
-        for i in range(NUM_POINTS):
+            self.pointsLeft.append(vect2d(1000,1000))  # 新增向量(1000,1000)
+            self.pointsRight.append(vect2d(1000,1000)) # 新增向量(1000,1000)
+            self.centerPoints.append(vect2d(1000,1000))# 新增向量(1000,1000)
+
+        self.ctrl_points[0].co(0, SPACING) # (0,200)       # 將前兩個 control_points 初始化為直線
+        self.ctrl_points[1].co(0, 0)       # (0,0)
+        for i in range(NUM_POINTS):        # NUM_POINTS  = 15 
             x = self.ctrl_points[0].x
-            y = self.ctrl_points[0].y - SPACING/NUM_POINTS*i
-            self.centerPoints[i].co(x, y)
-            self.pointsLeft[i].co(x - ROAD_WIDTH/2, y)
-            self.pointsRight[i].co(x + ROAD_WIDTH/2, y)
+            y = self.ctrl_points[0].y - SPACING/NUM_POINTS*i # SPACING/NUM_POINTS = 200/15
+            self.centerPoints[i].co(x, y)                    # 路徑座標
+            self.pointsLeft[i].co(x - ROAD_WIDTH/2, y)       # 路徑左側邊界座標
+            self.pointsRight[i].co(x + ROAD_WIDTH/2, y)      # 路徑右側邊界座標
         self.next_point = NUM_POINTS
 
-        for i in range(self.num_ctrl_points-2):
+        for i in range(self.num_ctrl_points-2): # range(5)
             self.createSegment(i+1)
 
         self.last_ctrl_point = self.num_ctrl_points-1
         self.bottomPointIndex = 0
 
-    def calcBorders(self, i):
+    def calcBorders(self, i): # 計算當前路徑邊界
         prev_index = getPoint(i-1, self.num_ctrl_points*NUM_POINTS)
         center = self.centerPoints[i]
         prev = self.centerPoints[prev_index]
         angle = atan2(center.x-prev.x, prev.y-center.y)
 
-        x = ROAD_WIDTH/2 * cos(angle)
-        y = ROAD_WIDTH/2 * sin(angle)
-        self.pointsLeft[i].x = center.x - x
+        x = ROAD_WIDTH/2 * cos(angle) # 畢氏定理
+        y = ROAD_WIDTH/2 * sin(angle) # 畢氏定理
+        self.pointsLeft[i].x = center.x - x  # 路徑左側邊界座標
         self.pointsLeft[i].y = center.y - y if not center.y - y >= self.pointsLeft[prev_index].y else self.pointsLeft[prev_index].y
-        self.pointsRight[i].x = center.x + x
+        self.pointsRight[i].x = center.x + x # 路徑右側邊界座標
         self.pointsRight[i].y = center.y + y if not center.y + y >= self.pointsRight[prev_index].y else self.pointsRight[prev_index].y
 
     def createSegment(self, index):
@@ -67,7 +77,7 @@ class Road:
             y_tmp.append(p2.y+SPACING/NUM_POINTS*i)
 
         #get cubic spline of the center line of the road
-        ny = np.array([p2.y, p1.y]) #invertiti perchè scify vuole le x crescenti (in questo caso le y)
+        ny = np.array([p2.y, p1.y]) #反轉是因為 scify 想要增加 x（在本例中是 y）
         nx = np.array([p2.x, p1.x])
         cs = interpolate.CubicSpline(ny, nx, axis=0, bc_type=((1,p2.angle),(1,p1.angle)))
         res = cs(y_tmp)
@@ -105,23 +115,16 @@ class Road:
                 p = self.pointsLeft[i]
                 f = self.pointsLeft[next_index]
                 if p.y >= f.y:
-                    py.draw.line(world.win, BLACK, world.getScreenCoords(p.x, p.y), world.getScreenCoords(f.x, f.y), 4)
-
+                    py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y), world.getScreenCoords(f.x, f.y), 4)
+                    # 畫左側道路邊界, 顏色 = 白, 寬度 = 4
                 p = self.pointsRight[i]
                 f = self.pointsRight[next_index]
                 if p.y >= f.y:
-                    py.draw.line(world.win, BLACK, world.getScreenCoords(p.x, p.y),world.getScreenCoords(f.x, f.y), 4)
-
+                    py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y),world.getScreenCoords(f.x, f.y), 4)
+                    # 畫右側道路邊界, 顏色 = 白, 寬度 = 4
 
 def getPoint(i, cap):
     return (i+cap)%cap
 
 
-
-
-
-
-
-
-
-    #-----------------
+# 持續註解中
