@@ -13,7 +13,7 @@ class Road:
         # SAFE_SPACE = SPACING + 50 = 250
         # world.win_height = WIN_HEIGHT = 750
         # => ((750+250)/200)+2 = 7 
-        # self.num_ctrl_points = 7 ?
+        # self.num_ctrl_points = 7  , => 畫面分隔成的段落
 
         self.last_ctrl_point = 0
         self.ctrl_points = []
@@ -64,9 +64,10 @@ class Road:
         self.pointsRight[i].y = center.y + y if not center.y + y >= self.pointsRight[prev_index].y else self.pointsRight[prev_index].y
 
     def createSegment(self, index):
-        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]    # 猜測為準備要生成的point1
+        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]    # 猜測生成的point1
         p2 = self.ctrl_points[getPoint(index+1, self.num_ctrl_points)]  # 猜測為準備要生成的point2
-
+        # getPoint 1 => 2 => ~ => 7 循環
+        
         #define p2
         seed()
         p2.co(p1.x + (random()-0.5)*MAX_DEVIATION, p1.y-SPACING)
@@ -74,10 +75,10 @@ class Road:
 
         y_tmp = []
         for i in range(NUM_POINTS):
-            y_tmp.append(p2.y+SPACING/NUM_POINTS*i)
+            y_tmp.append(p2.y+SPACING/NUM_POINTS*i)　# 每個點的y座標
 
         #get cubic spline of the center line of the road
-        ny = np.array([p2.y, p1.y]) #反轉是因為 scify 想要增加 x（在本例中是 y）
+        ny = np.array([p2.y, p1.y]) #　反轉是因為 scify 想要增加 x（在本例中是 y）
         nx = np.array([p2.x, p1.x])
         cs = interpolate.CubicSpline(ny, nx, axis=0, bc_type=((1,p2.angle),(1,p1.angle))) 
         # cubic spline 用來畫出光滑形狀的工具 
@@ -95,8 +96,8 @@ class Road:
         self.last_ctrl_point = getPoint(self.last_ctrl_point+1, self.num_ctrl_points)
         self.bottomPointIndex = self.next_point
 
-    def update(self, world):
-        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE:
+    def update(self, world):　# 上面製造新的段落
+        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE:　# -safe_space => 上面
             self.createSegment(self.last_ctrl_point)
 
 
@@ -129,7 +130,7 @@ class Road:
                     # 畫右側道路邊界, 顏色 = 白, 寬度 = 4
 
 def getPoint(i, cap):
-    return (i+cap)%cap
+    return (i+cap)%cap # i % cap  ???
 
 
 
