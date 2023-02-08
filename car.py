@@ -112,7 +112,7 @@ class Car:
             self.rot += TURN_VEL
 
         # 決定目前的最高速
-        timeBuffer = 500    # 還不懂timebuffer的用意
+        timeBuffer = 500    # 緩衝時間
         if MAX_VEL_REDUCTION == 1 or t >= timeBuffer:
             max_vel_local = MAX_VEL
         else:
