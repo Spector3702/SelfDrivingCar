@@ -59,7 +59,7 @@ def main(genomes = [], config = []):
     while run:
         t += 1
         clock.tick(FPS)
-        world.updateScore(0)#從0開始計時
+        world.updateScore(0)#從0開始計分數
 
         for event in py.event.get():    #迭代事件的迴圈，只要有事件發生就會處理
             if event.type == py.QUIT:   #如果使用者關視窗，程式結束
