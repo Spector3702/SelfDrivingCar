@@ -12,7 +12,7 @@ class World:
         self.win_width = world_width                                 # world_width = WIN_WIDTH = 1350
         self.win_height = world_height                               # world_height = WIN_HEIGHT = 750
         self.score = 0                                               # 分數設定
-        self.bestGenome = None                                       # ???
+        self.bestGenome = None                                       # 最優基因組
 
     def updateBestCarPos(self, pos): #位置存取
         self.bestCarPos = pos
