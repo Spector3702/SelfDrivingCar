@@ -12,7 +12,7 @@ py.font.init()#初始化pygame
 
 
 bg = py.Surface((WIN_WIDTH, WIN_HEIGHT))  #創建一個窗口，大小為WIN_WIDTH * WIN_HEIGHT
-bg.fill(GRAY)                             #把此窗口填上灰色
+bg.fill(DARK_GRAY)                             #把此窗口填上灰色
 
 
 def draw_win(cars, road, world, GEN):     #x 跟y 是最佳汽車的位置
@@ -20,9 +20,9 @@ def draw_win(cars, road, world, GEN):     #x 跟y 是最佳汽車的位置
     for car in cars:
         car.draw(world)
 
-    text = STAT_FONT.render("Best Car Score: "+str(int(world.getScore())), 1, BLACK)#顯示 Best Car Score 平滑且黑色
+    text = STAT_FONT.render("Best Car Score: "+str(int(world.getScore())), 1, WHITE)#顯示 Best Car Score 平滑且黑色
     world.win.blit(text, (world.win_width-text.get_width() - 10, 10))
-    text = STAT_FONT.render("Gen: "+str(GEN), 1, BLACK)                             #顯示 Generation 平滑且黑色
+    text = STAT_FONT.render("Gen: "+str(GEN), 1, WHITE)                             #顯示 Generation 平滑且黑色
     world.win.blit(text, (world.win_width-text.get_width() - 10, 50))
 
     world.bestNN.draw(world)
@@ -43,7 +43,8 @@ def main(genomes = [], config = []):
     world.win.blit(bg, (0,0))       #將background放在畫面正中央
 
     NNs = []
-    #這段看不太懂,應該是在從genomes加ge net NNs 
+
+    # 每個species有自己的genomes, 所以總共有population個genomes
     for _,g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config) #創建一個對應gemoes 的net
         nets.append(net)         #將net放進nets vector中
@@ -51,7 +52,7 @@ def main(genomes = [], config = []):
         g.fitness = 0
         ge.append(g)
         NNs.append(NN(config, g, (90, 210)))
-    #
+    
     road = Road(world)#Road的construction function
     clock = py.time.Clock() #開始計時
 
@@ -117,7 +118,9 @@ def run(config_path):#用於加入config_file中的neat parameter
     stats =neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(main, 10000)
+    winner = p.run(main, 10000) # Runs NEAT’s genetic algorithm for at most n generations. n : The maximum number of generations to run
+
+
 
 if __name__ == "__main__": #若開始跑main時
     local_dir = os.path.dirname(__file__)

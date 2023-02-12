@@ -21,7 +21,7 @@ class Node:
 
         # draw labels
         if self.type != MIDDLE:
-            text = NODE_FONT.render(self.label, 1, BLACK)
+            text = NODE_FONT.render(self.label, 1, WHITE)
             world.win.blit(text, (self.x + (self.type-1) * ((text.get_width() if not self.type else 0) + NODE_RADIUS + 5), self.y - text.get_height()/2))
 
     # 取得顏色的2*3矩陣

@@ -28,13 +28,13 @@ class Car:
     # 初始圖片設定
     def initImgs(self):
         # 隨機選一種顏色的車圖片
-        img_names = ["yellow_car.png", "red_car.png", "blu_car.png", "green_car.png"]
+        img_names = ["green_car.png", "gray_car.png", "black_car.png"]
         name = img_names[floor(random()*len(img_names))%len(img_names)]
 
         # convert_alpha() : change the pixel format of an image including per pixel alphas
         # 存取圖片後，設定大小為120*69，並旋轉90度
         # name : 車身圖片 ； brake : 煞車燈圖片
-        self.img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("imgs", name)).convert_alpha(), (120,69)), -90)
+        self.img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("sky_imgs", name)).convert_alpha(), (120,69)), -90)
         self.brake_img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("imgs", "brakes.png")).convert_alpha(), (120,69)), -90)
 
     # 偵測碰撞

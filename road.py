@@ -75,7 +75,7 @@ class Road:
 
         y_tmp = []
         for i in range(NUM_POINTS):
-            y_tmp.append(p2.y+SPACING/NUM_POINTS*i)　# 每個點的y座標
+            y_tmp.append(p2.y+SPACING/NUM_POINTS*i) # 每個點的y座標
 
         #get cubic spline of the center line of the road
         ny = np.array([p2.y, p1.y]) #　反轉是因為 scify 想要增加 x（在本例中是 y）
@@ -96,8 +96,8 @@ class Road:
         self.last_ctrl_point = getPoint(self.last_ctrl_point+1, self.num_ctrl_points)
         self.bottomPointIndex = self.next_point
 
-    def update(self, world):　# 上面製造新的段落
-        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE:　# -safe_space => 上面
+    def update(self, world): # 上面製造新的段落
+        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE: # -safe_space => 上面
             self.createSegment(self.last_ctrl_point)
 
 

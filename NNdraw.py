@@ -8,7 +8,7 @@ py.font.init()#pygame剛開始的initial
 
 class NN:
 
-    def __init__(self, config, genome, pos):
+    def __init__(self, config, genome, pos):                # genome (init) -> key, connections, nodes, fitness
         self.input_nodes = []                               #input layers 的nodes
         self.output_nodes = []                              #output layers的 nodes
         self.nodes = []                                     #node
@@ -16,10 +16,13 @@ class NN:
         self.pos = (int(pos[0]+NODE_RADIUS), int(pos[1]))   #位置=(原本x座標加上轉向=, y座標(因為車子不會上下動))
         input_names = ["Sensor T", "Sensor TR", "Sensor R", "Sensor BR", "Sensor B", "Sensor BL", "Sensor L", "Sensor TL", "Speed"]#input nodes的名字
         output_names = ["Accelerate", "Brake", "Turn Left", "Turn Right"]#output nodes的名字
-        middle_nodes = [n for n in genome.nodes.keys()]     #基因組的key
+        middle_nodes = [n for n in genome.nodes.keys()]     # nodes includes output nodes & hidden nodes if required
         nodeIdList = []
 
         #nodes
+        # input pins have negative keys, and the output pins have keys 0,1,...
+        # self.input_keys = [-i - 1 for i in range(self.num_inputs)]
+        # self.output_keys = [i for i in range(self.num_outputs)]
         h = (INPUT_NEURONS-1)*(NODE_RADIUS*2 + NODE_SPACING)#input layers 的nodes 高度
         for i, input in enumerate(config.genome_config.input_keys):
             n = Node(input, pos[0], pos[1]+int(-h/2 + i*(NODE_RADIUS*2 + NODE_SPACING)), INPUT, [GREEN_PALE, GREEN, DARK_GREEN_PALE, DARK_GREEN], input_names[i], i)#Nodes construction function (id:input,x座標:pos[0],y座標:pos[1]加上原形直徑加上點跟點之間的距離,type:INPUT,color:[那四個],label:上述input name第幾個,index:第幾個)
@@ -30,7 +33,7 @@ class NN:
         for i,out in enumerate(config.genome_config.output_keys):
             n = Node(out+INPUT_NEURONS, pos[0] + 2*(LAYER_SPACING+2*NODE_RADIUS), pos[1]+int(-h/2 + i*(NODE_RADIUS*2 + NODE_SPACING)), OUTPUT, [RED_PALE, RED, DARK_RED_PALE, DARK_RED], output_names[i], i)#Nodes construction function (id:output,x座標:pos[0]加上input layer與output layer 之間的距離加上直徑,y座標:pos[1]加上原形直徑加上點跟點之間的距離,type:INPUT,color:[那四個],label:上述input name第幾個,index:第幾個)
             self.nodes.append(n)    #將output的nodes append進nodes內
-            middle_nodes.remove(out)#每次就remove掉一個可能的基因組(?)
+            middle_nodes.remove(out)# 因原本包含輸出層，故remove掉
             nodeIdList.append(out)  #將這些index存進nodeIdList中
 
         h = (len(middle_nodes)-1)*(NODE_RADIUS*2 + NODE_SPACING)#hidden layers的node高度
