@@ -15,6 +15,7 @@ OUTPUT_NEURONS = 4
 
 MAX_GEN = 10
 GEN_INTERVAL = 2
+ISTEST = False
 
 #=================== Car Specs ==================================
 

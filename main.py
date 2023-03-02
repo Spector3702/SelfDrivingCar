@@ -46,14 +46,24 @@ def main(genomes = [], config = []):
 
     NNs = []
 
-    # 每個species有自己的genomes, 所以總共有population個genomes
-    for _,g in genomes:
-        net = neat.nn.FeedForwardNetwork.create(g, config) #創建一個對應gemoes 的net
+    if ISTEST:
+        with open("best.pickle", "rb") as f:
+            winner = pickle.load(f)
+        net = neat.nn.FeedForwardNetwork.create(winner, config) #創建一個對應gemoes 的net
         nets.append(net)         #將net放進nets vector中
         cars.append(Car(0, 0, 0))#把所有car都創建好
-        g.fitness = 0
-        ge.append(g)
-        NNs.append(NN(config, g, (90, 210)))
+        winner.fitness = 0
+        ge.append(winner)
+        NNs.append(NN(config, winner, (90, 210)))
+    else:
+        # 每個species有自己的genomes, 所以總共有population個genomes
+        for _,g in genomes:
+            net = neat.nn.FeedForwardNetwork.create(g, config) #創建一個對應gemoes 的net
+            nets.append(net)         #將net放進nets vector中
+            cars.append(Car(0, 0, 0))#把所有car都創建好
+            g.fitness = 0
+            ge.append(g)
+            NNs.append(NN(config, g, (90, 210)))
     
     road = Road(world)#Road的construction function
     clock = py.time.Clock() #開始計時
@@ -116,7 +126,7 @@ def run(config_path):#用於加入config_file中的neat parameter
     global last_gen
 
     # if run first time
-    if len(glob.glob(checkpoint_path + '*')) == 0 :
+    if (len(glob.glob(checkpoint_path + '*')) == 0 or ISTEST) :
         config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)#將config_file中的參數加入config這個variable中
         p = neat.Population(config)
         last_gen = 0
