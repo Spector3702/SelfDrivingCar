@@ -13,6 +13,8 @@ BAD_GENOME_TRESHOLD = 200                       #if a car is too far behind it i
 INPUT_NEURONS = 9
 OUTPUT_NEURONS = 4
 
+MAX_GEN = 3
+
 #=================== Car Specs ==================================
 
 CAR_DBG = False

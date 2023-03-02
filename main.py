@@ -3,6 +3,8 @@ import neat
 import time
 import os
 import random
+import pickle
+import glob
 from car import Car
 from road import Road
 from world import World
@@ -105,21 +107,35 @@ def main(genomes = [], config = []):
 
         world.updateBestCarPos((xb, yb))    #更新最佳pos
         road.update(world)                  #更新最佳路線
-        draw_win(cars, road, world, GEN)    #
+        draw_win(cars, road, world, GEN + last_gen)    #
 
 
 #NEAT function
 def run(config_path):#用於加入config_file中的neat parameter
-    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)#將config_file中的參數加入config這個variable中
+    checkpoint_path = './checkpoints/neat-checkpoint-'
+    global last_gen
 
-    p = neat.Population(config)#以下是計算在終端機上的那6個值
+    # if run first time
+    if len(glob.glob(checkpoint_path + '*')) == 0 :
+        config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)#將config_file中的參數加入config這個variable中
+        p = neat.Population(config)
+        last_gen = 0
+    # if continue training
+    else:
+        gen_num = []
+        for file in glob.glob(checkpoint_path + '*'):
+            gen_num.append(int(file[len(checkpoint_path):]))
+        p = neat.Checkpointer.restore_checkpoint(checkpoint_path + str(max(gen_num)))
+        last_gen = p.generation
 
     p.add_reporter(neat.StdOutReporter(True))
     stats =neat.StatisticsReporter()
     p.add_reporter(stats)
+    p.add_reporter(neat.Checkpointer(MAX_GEN + last_gen, filename_prefix = checkpoint_path))
 
-    winner = p.run(main, 10000) # Runs NEAT’s genetic algorithm for at most n generations. n : The maximum number of generations to run
-
+    winner = p.run(main, MAX_GEN) # Runs NEAT’s genetic algorithm for at most n generations. n : The maximum number of generations to run
+    with open("best.pickle", "wb") as f:
+        pickle.dump(winner, f)
 
 
 if __name__ == "__main__": #若開始跑main時
