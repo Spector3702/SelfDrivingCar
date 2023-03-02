@@ -131,7 +131,7 @@ def run(config_path):#用於加入config_file中的neat parameter
     p.add_reporter(neat.StdOutReporter(True))
     stats =neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(MAX_GEN + last_gen, filename_prefix = checkpoint_path))
+    p.add_reporter(neat.Checkpointer(GEN_INTERVAL, filename_prefix = checkpoint_path))
 
     winner = p.run(main, MAX_GEN) # Runs NEAT’s genetic algorithm for at most n generations. n : The maximum number of generations to run
     with open("best.pickle", "wb") as f:
