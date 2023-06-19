@@ -13,7 +13,7 @@ class Road:
         # SAFE_SPACE = SPACING + 50 = 250
         # world.win_height = WIN_HEIGHT = 750
         # => ((750+250)/200)+2 = 7 
-        # self.num_ctrl_points = 7  , => 畫面分隔成的段落
+        # self.num_ctrl_points = 7 ?
 
         self.last_ctrl_point = 0
         self.ctrl_points = []
@@ -64,10 +64,9 @@ class Road:
         self.pointsRight[i].y = center.y + y if not center.y + y >= self.pointsRight[prev_index].y else self.pointsRight[prev_index].y
 
     def createSegment(self, index):
-        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]    # 猜測生成的point1
+        p1 = self.ctrl_points[getPoint(index, self.num_ctrl_points)]    # 猜測為準備要生成的point1
         p2 = self.ctrl_points[getPoint(index+1, self.num_ctrl_points)]  # 猜測為準備要生成的point2
-        # getPoint 1 => 2 => ~ => 7 循環
-        
+
         #define p2
         seed()
         p2.co(p1.x + (random()-0.5)*MAX_DEVIATION, p1.y-SPACING)
@@ -75,10 +74,10 @@ class Road:
 
         y_tmp = []
         for i in range(NUM_POINTS):
-            y_tmp.append(p2.y+SPACING/NUM_POINTS*i) # 每個點的y座標
+            y_tmp.append(p2.y+SPACING/NUM_POINTS*i)
 
         #get cubic spline of the center line of the road
-        ny = np.array([p2.y, p1.y]) #　反轉是因為 scify 想要增加 x（在本例中是 y）
+        ny = np.array([p2.y, p1.y]) #反轉是因為 scify 想要增加 x（在本例中是 y）
         nx = np.array([p2.x, p1.x])
         cs = interpolate.CubicSpline(ny, nx, axis=0, bc_type=((1,p2.angle),(1,p1.angle))) 
         # cubic spline 用來畫出光滑形狀的工具 
@@ -96,12 +95,12 @@ class Road:
         self.last_ctrl_point = getPoint(self.last_ctrl_point+1, self.num_ctrl_points)
         self.bottomPointIndex = self.next_point
 
-    def update(self, world): # 上面製造新的段落
-        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE: # -safe_space => 上面
+    def update(self, world):
+        if world.getScreenCoords(0, self.ctrl_points[self.last_ctrl_point].y)[1] > -SAFE_SPACE:
             self.createSegment(self.last_ctrl_point)
 
 
-    def draw(self, world):
+    def draw(self, world,ROAD_DBG):
         #draw control_points, 邊界 = 點(藍色)
         if(ROAD_DBG): 
 
@@ -110,27 +109,45 @@ class Road:
             # 上面兩行是他原本的 應該只是範例
 
             for i in range(len(self.pointsLeft)):
-                py.draw.circle(world.win, BLUE, world.getScreenCoords(self.pointsLeft[i].x, self.pointsLeft[i].y), 2)
-                py.draw.circle(world.win, BLUE, world.getScreenCoords(self.pointsRight[i].x, self.pointsRight[i].y), 2)
+                next_index = getPoint(i+1, NUM_POINTS*self.num_ctrl_points)
+                py.draw.circle(world.win, WHITE, world.getScreenCoords(self.pointsLeft[i].x, self.pointsLeft[i].y), 2)
+                py.draw.circle(world.win, WHITE, world.getScreenCoords(self.pointsRight[i].x, self.pointsRight[i].y), 2)
+                if i%3==0:
+                    py.draw.line(world.win, GREEN_PALE, world.getScreenCoords((self.pointsRight[i].x+self.pointsLeft[i].x)/2, (self.pointsRight[i].y+ self.pointsLeft[i].y)/2),world.getScreenCoords((self.pointsRight[next_index].x+self.pointsLeft[next_index].x)/2, (self.pointsRight[next_index].y+ self.pointsLeft[next_index].y)/2), 2)
                 #py.draw.lines(win, BLACK, False, [(self.pointsLeft[i].x, self.pointsLeft[i].y), (self.pointsRight[i].x, self.pointsRight[i].y)], 1)
         else:
             #draw borders, 邊界 = 線條 
             for i in range(len(self.pointsLeft)):
                 next_index = getPoint(i+1, NUM_POINTS*self.num_ctrl_points)
 
-                p = self.pointsLeft[i]           # p = previous
-                f = self.pointsLeft[next_index]  # f = future
-                if p.y >= f.y:
-                    py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y), world.getScreenCoords(f.x, f.y), 4)
+                p1 = self.pointsLeft[i]           # p = previous
+                f1 = self.pointsLeft[next_index]  # f = future
+                if p1.y >= f1.y:
+                    py.draw.line(world.win, WHITE, world.getScreenCoords(p1.x, p1.y), world.getScreenCoords(f1.x, f1.y), 4)
+                    py.draw.line(world.win, GRAY, world.getScreenCoords(p1.x-10, p1.y), world.getScreenCoords(f1.x-10, f1.y), 4)                    
+                    py.draw.line(world.win, YELLOW, world.getScreenCoords(p1.x, p1.y), world.getScreenCoords(f1.x+30, f1.y-20), 1)
+                    #if p1.x <= f1.x:
+                    #    py.draw.line(world.win, YELLOW, world.getScreenCoords(p1.x, p1.y), world.getScreenCoords(f1.x+30, f1.y-30), 1)
+                    #else:
+                    #    py.draw.line(world.win, YELLOW, world.getScreenCoords(p1.x, p1.y), world.getScreenCoords(f1.x-30, f1.y-30), 1)
                     # 畫左側道路邊界, 顏色 = 白, 寬度 = 4
-                p = self.pointsRight[i]          # p = previous
-                f = self.pointsRight[next_index] # f = future
-                if p.y >= f.y:
-                    py.draw.line(world.win, WHITE, world.getScreenCoords(p.x, p.y),world.getScreenCoords(f.x, f.y), 4)
+                p2 = self.pointsRight[i]          # p = previous
+                f2 = self.pointsRight[next_index] # f = future
+                if p2.y >= f2.y: 
+                    py.draw.line(world.win, WHITE, world.getScreenCoords(p2.x, p2.y),world.getScreenCoords(f2.x, f2.y), 4)
+                    py.draw.line(world.win, GRAY, world.getScreenCoords(p2.x+10,p2.y),world.getScreenCoords(f2.x+10, f2.y), 4)
+                    py.draw.line(world.win, YELLOW, world.getScreenCoords(p2.x, p2.y),world.getScreenCoords(f2.x-30, f2.y-20), 1)
+                    #if p2.x >= p2.x:                  
+                    #    py.draw.line(world.win, YELLOW, world.getScreenCoords(p2.x, p2.y),world.getScreenCoords(f2.x-30, f2.y-30), 1)
+                    #else:
+                    #    py.draw.line(world.win, YELLOW, world.getScreenCoords(p2.x, p2.y),world.getScreenCoords(f2.x+30, f2.y-30), 1)
                     # 畫右側道路邊界, 顏色 = 白, 寬度 = 4
+                if i%5==0 or i%5==1:
+                    py.draw.line(world.win, GRAY, world.getScreenCoords((self.pointsRight[i].x+self.pointsLeft[i].x)/2, (self.pointsRight[i].y+ self.pointsLeft[i].y)/2),world.getScreenCoords((self.pointsRight[next_index].x+self.pointsLeft[next_index].x)/2, (self.pointsRight[next_index].y+ self.pointsLeft[next_index].y)/2), 4)
+
 
 def getPoint(i, cap):
-    return (i+cap)%cap # i % cap  ???
+    return (i+cap)%cap
 
 
 
