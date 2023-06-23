@@ -42,7 +42,7 @@ def draw_win(cars, road, world, GEN, BS, t):     #x 和 y 是最佳汽車的坐�
 
     #world.win.blit(steering_wheel_img,(SW_IMG_POS_X,SW_IMG_POS_Y))
 
-    button_img = py.image.load(os.path.join("imgs",'botton.png')).convert_alpha()
+    button_img = py.image.load(os.path.join("Neat\imgs",'botton.png')).convert_alpha()
     
     road_button = Button(25 + text_road.get_width(), 555, button_img, SCALE)
 
@@ -94,7 +94,7 @@ def draw_win(cars, road, world, GEN, BS, t):     #x 和 y 是最佳汽車的坐�
     text = STAT_FONT_1.render(str(len(cars))+' Car(s) Left', 1, GRAY)
     world.win.blit(text, (world.win_width-text.get_width() - 20, 710))
 
-    ex_img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("imgs",'example_break.png')).convert_alpha(), (EX_IMG_SIZE_X,EX_IMG_SIZE_Y)), -90)
+    ex_img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("Neat\imgs",'example_break.png')).convert_alpha(), (EX_IMG_SIZE_X,EX_IMG_SIZE_Y)), -90)
     world.win.blit(ex_img,(EX_IMG_POS_X, EX_IMG_SIZE_Y))
 
     world.bestNN.draw(world)
@@ -210,7 +210,7 @@ def main(genomes = [], config = []):
 
 #NEAT function
 def run(config_path):
-    checkpoint_path = './checkpoints/neat-checkpoint-'
+    checkpoint_path = './Neat/checkpoints/neat-checkpoint-'
     global last_gen
 
     # if run first time

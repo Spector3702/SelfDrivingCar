@@ -26,9 +26,8 @@ class Car:
     def initImgs(self):
         img_names = ["yellow_car.png", "red_car.png", "blu_car.png", "green_car.png"]
         name = img_names[floor(random()*len(img_names))%len(img_names)]                 #prendi a caso una di queste immagini
-
-        self.img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("imgs", name)).convert_alpha(), (120,69)), -90)
-        self.brake_img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("imgs","brakes.png")).convert_alpha(), (120,69)), -90)
+        self.img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("Neat\imgs", name)).convert_alpha(), (120,69)), -90)
+        self.brake_img = py.transform.rotate(py.transform.scale(py.image.load(os.path.join("Neat\imgs","brakes.png")).convert_alpha(), (120,69)), -90)
 
     def detectCollision(self, road):
         #get mask
